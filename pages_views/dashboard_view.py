@@ -23,7 +23,8 @@ from utils.ui import (
     render_empty_state,
     render_initiative_card,
     render_task_alert_card,
-    render_meeting_feed_card
+    render_meeting_feed_card,
+    render_custom_kpi_card
 )
 
 def render_dashboard_page():
@@ -46,49 +47,109 @@ def render_dashboard_page():
     upcoming_tasks = get_upcoming_deadlines_list(days_ahead=14)
     recent_meetings = get_all_meetings()[:4]
 
-    # Primary Executive KPI Cards
-    kpi_cols = st.columns(6)
-    with kpi_cols[0]:
-        st.metric("Initiatives", f"{kpis['total_initiatives']}", help="Active strategic program workstreams")
-    with kpi_cols[1]:
-        st.metric("Active Tasks", f"{kpis['active_tasks']}", help="Tasks currently Not Started, In Progress, or Blocked")
-    with kpi_cols[2]:
-        st.metric("Completed", f"{kpis['completed_tasks']}", help="Successfully finished commitments")
-    with kpi_cols[3]:
-        overdue_delta = f"{kpis['overdue_rate']}% of active" if kpis['active_tasks'] > 0 else "0%"
-        st.metric("Overdue", f"{kpis['overdue_tasks']}", delta=overdue_delta, delta_color="inverse", help="Tasks requiring executive escalation")
-    with kpi_cols[4]:
-        st.metric("Pending Review", f"{kpis['pending_approvals']}", help="AI-extracted candidates awaiting authorization")
-    with kpi_cols[5]:
-        st.metric("Completion Rate", f"{kpis['completion_rate']}%", help="Proportion of total tracked commitments completed")
+    # 1. Headline Executive KPIs (4 prominent cards)
+    headline_cols = st.columns(4)
+    with headline_cols[0]:
+        render_custom_kpi_card(
+            label="Active Tasks",
+            value=f"{kpis['active_tasks']}",
+            subtext=f"{kpis['total_tasks']} total portfolio commitments",
+            badge_text="In Flight",
+            badge_color="blue"
+        )
+    with headline_cols[1]:
+        render_custom_kpi_card(
+            label="Overdue Tasks",
+            value=f"{kpis['overdue_tasks']}",
+            subtext=f"{kpis['overdue_rate']}% of active commitments",
+            badge_text="Critical" if kpis['overdue_tasks'] > 0 else "Clean",
+            badge_color="red" if kpis['overdue_tasks'] > 0 else "green"
+        )
+    with headline_cols[2]:
+        render_custom_kpi_card(
+            label="Pending Review",
+            value=f"{kpis['pending_approvals']}",
+            subtext="AI suggestions awaiting verification",
+            badge_text="Verification Gate",
+            badge_color="amber" if kpis['pending_approvals'] > 0 else "neutral"
+        )
+    with headline_cols[3]:
+        render_custom_kpi_card(
+            label="Completion Rate",
+            value=f"{kpis['completion_rate']}%",
+            subtext=f"{kpis['completed_tasks']} commitments delivered",
+            badge_text="Velocity",
+            badge_color="green"
+        )
 
-    # AI Quality & Human-in-the-Loop Telemetry
+    # 2. AI Extraction Quality & Human Oversight Telemetry (3 cards per row, no misleading arrows)
     st.markdown("""
-    <div style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 10px 0; padding-top: 14px; border-top: 1px solid #e2e8f0;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin: 20px 0 6px 0; padding-top: 14px; border-top: 1px solid #e2e8f0;">
         <div>
-            <span style="font-size:14px; font-weight:700; color:#0f172a; letter-spacing:-0.01em;">AI Extraction Quality & Human Oversight</span>
-            <span style="font-size:12px; color:#64748b; margin-left:8px;">&bull; Telemetry computed directly from review_queue & audit_log records</span>
+            <span style="font-size:14px; font-weight:700; color:#0f172a; letter-spacing:-0.01em;">AI Quality & Human Oversight Telemetry</span>
+            <span style="font-size:12px; color:#64748b; margin-left:8px;">&bull; Live computed from review_queue & audit_log records</span>
         </div>
-        <span style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:0.04em;">
+        <span style="background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; font-size:10px; font-weight:700; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.04em;">
             Human-in-the-Loop Telemetry
         </span>
     </div>
+    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:6px 12px; font-size:11px; color:#64748b; margin-bottom:12px;">
+        <span style="font-weight:600; color:#0f172a;">Demo Dataset Telemetry:</span> <i>n = 3 candidate items reviewed (2 approved/edited, 1 rejected) in current demo database. Live calculated from SQLite audit trail.</i>
+    </div>
     """, unsafe_allow_html=True)
 
-    telemetry_cols = st.columns(6)
-    with telemetry_cols[0]:
-        st.metric("AI Items Extracted", f"{ai_metrics['total_extracted']}", help="Total candidate items parsed across transcripts")
-    with telemetry_cols[1]:
+    tele_row1 = st.columns(3)
+    with tele_row1[0]:
+        render_custom_kpi_card(
+            label="AI Extracted",
+            value=f"{ai_metrics['total_extracted']}",
+            subtext="Candidates parsed across transcripts",
+            badge_text="Model Output",
+            badge_color="blue"
+        )
+    with tele_row1[1]:
         total_authorized = ai_metrics['approved'] + ai_metrics['edited']
-        st.metric("Approval Rate", f"{ai_metrics['approval_rate']}%", delta=f"{total_authorized} authorized", delta_color="normal", help="Percentage of candidates admitted to tracker")
-    with telemetry_cols[2]:
-        st.metric("Rejection Rate", f"{ai_metrics['rejection_rate']}%", delta=f"{ai_metrics['rejected']} dismissed", delta_color="inverse", help="Percentage rejected as noise or out of scope")
-    with telemetry_cols[3]:
-        st.metric("Edited-Before-Approval", f"{ai_metrics['edit_rate']}%", delta=f"{ai_metrics['edited']} modified", delta_color="off", help="Percentage adjusted by human reviewers")
-    with telemetry_cols[4]:
-        st.metric("Avg AI Confidence", f"{ai_metrics['avg_confidence']}%", help="Mean model confidence across extracted items")
-    with telemetry_cols[5]:
-        st.metric("Human Interventions", f"{ai_metrics['human_intervention_count']}", delta=f"{ai_metrics['intervention_rate']}% intervention", delta_color="off", help="Deliverables requiring active adjustments or rejection")
+        render_custom_kpi_card(
+            label="Approval Rate",
+            value=f"{ai_metrics['approval_rate']}%",
+            subtext=f"{total_authorized} candidates admitted to tracker",
+            badge_text=f"{total_authorized} authorized",
+            badge_color="green"
+        )
+    with tele_row1[2]:
+        render_custom_kpi_card(
+            label="Rejection Rate",
+            value=f"{ai_metrics['rejection_rate']}%",
+            subtext=f"{ai_metrics['rejected']} dismissed as noise or out of scope",
+            badge_text=f"{ai_metrics['rejected']} dismissed",
+            badge_color="red"
+        )
+
+    tele_row2 = st.columns(3)
+    with tele_row2[0]:
+        render_custom_kpi_card(
+            label="Edited",
+            value=f"{ai_metrics['edit_rate']}%",
+            subtext=f"{ai_metrics['edited']} modified by reviewer before approval",
+            badge_text=f"{ai_metrics['edited']} pre-edits",
+            badge_color="amber"
+        )
+    with tele_row2[1]:
+        render_custom_kpi_card(
+            label="Avg Confidence",
+            value=f"{ai_metrics['avg_confidence']}%",
+            subtext="Mean model extraction confidence score",
+            badge_text="Inference",
+            badge_color="blue"
+        )
+    with tele_row2[2]:
+        render_custom_kpi_card(
+            label="Interventions",
+            value=f"{ai_metrics['human_intervention_count']}",
+            subtext=f"{ai_metrics['intervention_rate']}% required active edit or dismissal",
+            badge_text=f"{ai_metrics['intervention_rate']}% rate",
+            badge_color="neutral"
+        )
 
     st.markdown("<hr style='margin: 18px 0 20px 0; border: 0; border-top: 1px solid #e2e8f0;'>", unsafe_allow_html=True)
 
@@ -110,7 +171,7 @@ def render_dashboard_page():
         
         status_palette = {
             "Completed": "#10b981",
-            "In Progress": "#3b82f6",
+            "In Progress": "#2563eb",
             "Not Started": "#94a3b8",
             "Blocked": "#ef4444"
         }
@@ -122,14 +183,22 @@ def render_dashboard_page():
                 values=status_values,
                 hole=.60,
                 marker=dict(colors=slice_colors),
-                textinfo='label+percent',
-                textfont=dict(family='Inter', size=11),
-                hovertemplate="<b>%{label}</b><br>Count: %{value}<br>Ratio: %{percent}<extra></extra>"
+                textinfo='none',
+                hoverinfo='label+percent+value',
+                hovertemplate="<b>%{label}</b><br>Count: %{value}<br>Share: %{percent:.1%}<extra></extra>"
             )])
             donut_fig.update_layout(
                 margin=dict(t=10, b=10, l=10, r=10),
-                height=250,
-                showlegend=False,
+                height=260,
+                showlegend=True,
+                legend=dict(
+                    orientation="h",
+                    yanchor="top",
+                    y=-0.08,
+                    xanchor="center",
+                    x=0.5,
+                    font=dict(family='Inter', size=11, color='#475569')
+                ),
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)'
             )

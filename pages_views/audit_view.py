@@ -8,7 +8,8 @@ from utils.ui import (
     render_empty_state,
     get_status_badge_html,
     get_priority_badge_html,
-    get_confidence_badge_html
+    get_confidence_badge_html,
+    render_custom_kpi_card
 )
 
 def render_lineage_item(item: dict):
@@ -18,50 +19,52 @@ def render_lineage_item(item: dict):
     is_edited = item["has_edits"]
     has_task = item["task_id"] is not None
 
-    # Step 3 Decision Styling
+    # Step 3 Decision Styling (Strict 4 Colors)
     if status in ["Approved", "Edited & Approved"]:
         dec_badge_bg = "#ecfdf5"
-        dec_badge_color = "#059669"
+        dec_badge_color = "#10b981"
         dec_badge_border = "#a7f3d0"
         dec_label = "AUTHORIZED"
     elif status == "Rejected":
         dec_badge_bg = "#fef2f2"
-        dec_badge_color = "#dc2626"
-        dec_badge_border = "#fecaca"
+        dec_badge_color = "#ef4444"
+        dec_badge_border = "#fca5a5"
         dec_label = "REJECTED"
     else:
         dec_badge_bg = "#fffbeb"
-        dec_badge_color = "#b45309"
+        dec_badge_color = "#f59e0b"
         dec_badge_border = "#fde68a"
         dec_label = "PENDING REVIEW"
 
     # Step 4 Official Tracker State
     if has_task:
         trk_badge_bg = "#eff6ff"
-        trk_badge_color = "#1d4ed8"
+        trk_badge_color = "#2563eb"
         trk_badge_border = "#bfdbfe"
         trk_label = f"Task #{item['task_id']} ({item['task_status']})"
         trk_subtext = "Live commitment in initiative tracker"
     elif status == "Rejected":
         trk_badge_bg = "#f8fafc"
-        trk_badge_color = "#94a3b8"
+        trk_badge_color = "#64748b"
         trk_badge_border = "#e2e8f0"
         trk_label = "Excluded from Tracker"
         trk_subtext = "Zero database task mutation"
     else:
         trk_badge_bg = "#fffbeb"
-        trk_badge_color = "#b45309"
+        trk_badge_color = "#f59e0b"
         trk_badge_border = "#fde68a"
         trk_label = "Awaiting Verification"
         trk_subtext = "Staged in candidate queue"
 
     st.markdown(f"""
-    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:16px 20px; margin-bottom:16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:18px 22px; margin-bottom:18px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04);">
         <!-- Card Header -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.04em;">CANDIDATE #{review_id}</span>
-                <span style="font-size:12px; color:#475569;">Source: <b>{item['meeting_title']}</b></span>
+                <span style="font-size:12px; font-weight:700; color:#2563eb; text-transform:uppercase; letter-spacing:0.04em; background:#eff6ff; padding:2px 8px; border-radius:6px; border:1px solid #bfdbfe;">
+                    CANDIDATE #{review_id}
+                </span>
+                <span style="font-size:13px; color:#0f172a; font-weight:600;">{item['meeting_title']}</span>
             </div>
             <div style="font-size:11px; color:#64748b;">
                 Audit Log: <b>{item['reviewed_at'] or 'Pending Human Verification'}</b>
@@ -173,15 +176,45 @@ def render_audit_trail_page():
     # High-Level Governance Telemetry Summary
     summary_cols = st.columns(5)
     with summary_cols[0]:
-        st.metric("Total Lineage Records", f"{len(lineage_records)}", help="Total records tracked from meeting extraction through review")
+        render_custom_kpi_card(
+            label="Total Lineage",
+            value=f"{len(lineage_records)}",
+            subtext="Tracked pipeline items",
+            badge_text="Audit Pool",
+            badge_color="blue"
+        )
     with summary_cols[1]:
-        st.metric("Approved As-Is", f"{ai_metrics['approved']}", help="AI candidates authorized without human changes")
+        render_custom_kpi_card(
+            label="Approved As-Is",
+            value=f"{ai_metrics['approved']}",
+            subtext="Direct model authorizations",
+            badge_text="Direct Pass",
+            badge_color="green"
+        )
     with summary_cols[2]:
-        st.metric("Human-Edited & Approved", f"{ai_metrics['edited']}", help="AI candidates modified by reviewers prior to tracker entry")
+        render_custom_kpi_card(
+            label="Edited & Approved",
+            value=f"{ai_metrics['edited']}",
+            subtext="Human refined before entry",
+            badge_text="Supervised",
+            badge_color="amber"
+        )
     with summary_cols[3]:
-        st.metric("Rejected / Filtered", f"{ai_metrics['rejected']}", help="AI candidates flagged as noise or out of scope")
+        render_custom_kpi_card(
+            label="Rejected",
+            value=f"{ai_metrics['rejected']}",
+            subtext="Blocked from entering tracker",
+            badge_text="Dismissed",
+            badge_color="red"
+        )
     with summary_cols[4]:
-        st.metric("Pending Authorization", f"{ai_metrics['pending']}", help="Candidates currently staged in review queue")
+        render_custom_kpi_card(
+            label="Pending Review",
+            value=f"{ai_metrics['pending']}",
+            subtext="In review verification gate",
+            badge_text="Staged",
+            badge_color="neutral"
+        )
 
     st.markdown("<hr style='margin: 18px 0 16px 0; border:0; border-top: 1px solid #e2e8f0;'>", unsafe_allow_html=True)
 

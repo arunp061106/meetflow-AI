@@ -129,9 +129,9 @@ def apply_custom_css():
     div[data-testid="stMetric"] {
         background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
-        border-radius: 8px !important;
-        padding: 14px 18px !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04) !important;
     }
     div[data-testid="stMetricLabel"] {
         font-size: 12px !important;
@@ -154,10 +154,10 @@ def apply_custom_css():
         border-top: 1px solid #e2e8f0;
         border-right: 1px solid #e2e8f0;
         border-bottom: 1px solid #e2e8f0;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 16px 20px;
         margin-bottom: 24px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
     }
     .gov-pill {
         display: inline-block;
@@ -165,11 +165,11 @@ def apply_custom_css():
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: #1e40af;
+        color: #2563eb;
         background: #eff6ff;
-        border: 1px solid #dbeafe;
+        border: 1px solid #bfdbfe;
         padding: 2px 8px;
-        border-radius: 4px;
+        border-radius: 6px;
         margin-bottom: 6px;
     }
     .gov-heading {
@@ -188,10 +188,10 @@ def apply_custom_css():
     .approval-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 18px 20px;
         margin-bottom: 14px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
         transition: border-color 0.15s ease;
     }
     .approval-card:hover {
@@ -215,7 +215,7 @@ def apply_custom_css():
         gap: 12px;
         background: #f8fafc;
         border: 1px solid #f1f5f9;
-        border-radius: 6px;
+        border-radius: 8px;
         padding: 10px 14px;
         margin: 10px 0;
         font-size: 12px;
@@ -236,7 +236,7 @@ def apply_custom_css():
         background: #f8fafc;
         border-left: 3px solid #64748b;
         padding: 10px 14px;
-        border-radius: 0 6px 6px 0;
+        border-radius: 0 8px 8px 0;
         margin: 10px 0 14px 0;
         font-size: 12px;
         color: #334155;
@@ -254,34 +254,34 @@ def apply_custom_css():
         line-height: 1.5;
     }
 
-    /* Badges */
+    /* Badges (Strict 4 Colors: Blue #2563EB, Green #10B981, Amber #F59E0B, Red #EF4444) */
     .badge {
         display: inline-flex;
         align-items: center;
         padding: 2px 8px;
         font-size: 11px;
         font-weight: 600;
-        border-radius: 4px;
+        border-radius: 6px;
         letter-spacing: 0.02em;
         white-space: nowrap;
     }
-    .badge-completed { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
-    .badge-in-progress { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-completed { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0; }
+    .badge-in-progress { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
     .badge-not-started { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
-    .badge-blocked { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-    .badge-overdue { background: #fef2f2; color: #b91c1c; border: 1px solid #f87171; font-weight: 700; }
+    .badge-blocked { background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; }
+    .badge-overdue { background: #fef2f2; color: #ef4444; border: 1px solid #f87171; font-weight: 700; }
 
-    .badge-high { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
-    .badge-medium { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
-    .badge-low { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-high { background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; }
+    .badge-medium { background: #fffbeb; color: #f59e0b; border: 1px solid #fde68a; }
+    .badge-low { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0; }
 
-    .badge-confidence { background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe; font-weight: 600; }
+    .badge-confidence { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 600; }
 
     /* Empty State Box */
     .empty-state-box {
         background: #ffffff;
         border: 1px dashed #cbd5e1;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 36px 20px;
         text-align: center;
         margin: 16px 0;
@@ -299,16 +299,16 @@ def apply_custom_css():
         margin: 0 auto;
     }
 
-    /* Sidebar custom branding */
+    /* Sidebar custom branding - Fix invisible title on light background */
     .sidebar-brand-box {
         padding: 8px 0 16px 0;
-        border-bottom: 1px solid #1e293b;
+        border-bottom: 1px solid #e2e8f0;
         margin-bottom: 16px;
     }
     .sidebar-brand-title {
         font-size: 18px;
         font-weight: 800;
-        color: #f8fafc;
+        color: #0f172a;
         letter-spacing: -0.02em;
         display: flex;
         align-items: center;
@@ -317,14 +317,14 @@ def apply_custom_css():
     .sidebar-brand-logo {
         background: #2563eb;
         color: #ffffff;
-        padding: 3px 7px;
-        border-radius: 5px;
+        padding: 3px 8px;
+        border-radius: 6px;
         font-size: 13px;
         font-weight: 800;
     }
     .sidebar-brand-subtitle {
         font-size: 11px;
-        color: #94a3b8;
+        color: #64748b;
         font-weight: 500;
         margin-top: 4px;
         letter-spacing: 0.02em;
@@ -342,27 +342,29 @@ def apply_custom_css():
         padding: 8px 12px;
     }
     .stTabs [aria-selected="true"] {
-        color: #1e40af !important;
+        color: #2563eb !important;
         border-bottom-color: #2563eb !important;
     }
     /* Custom Initiative & Alert Cards */
     .initiative-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        border-radius: 12px;
+        padding: 16px 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+        transition: border-color 0.15s ease;
     }
     .initiative-card:hover {
         border-color: #cbd5e1;
     }
     .task-alert-card {
         background: #ffffff;
-        border-radius: 6px;
-        padding: 12px 14px;
+        border-radius: 12px;
+        padding: 12px 16px;
         margin-bottom: 8px;
         border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
     }
     .task-alert-card.overdue {
         border-left: 4px solid #ef4444;
@@ -371,7 +373,7 @@ def apply_custom_css():
         border-bottom: 1px solid #fee2e2;
     }
     .task-alert-card.upcoming {
-        border-left: 4px solid #3b82f6;
+        border-left: 4px solid #2563eb;
     }
     .task-alert-card.urgent {
         border-left: 4px solid #f59e0b;
@@ -379,9 +381,10 @@ def apply_custom_css():
     .meeting-feed-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        padding: 12px 14px;
+        border-radius: 12px;
+        padding: 14px 16px;
         margin-bottom: 10px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
     }
     .meeting-feed-card:hover {
         border-color: #cbd5e1;
@@ -463,12 +466,41 @@ def get_confidence_badge_html(score: float) -> str:
     pct = int(score * 100) if score <= 1.0 else int(score)
     return f'<span class="badge badge-confidence">{pct}% Inferred Match</span>'
 
+def render_custom_kpi_card(label: str, value: str, subtext: str = "", badge_text: str = "", badge_color: str = "neutral"):
+    """
+    Renders an executive SaaS KPI card with 12px radius, 1px #E2E8F0 border,
+    soft shadow, and non-misleading badges/subtext (no trend arrows).
+    Restricted strictly to the 4-color palette: Blue, Green, Amber, Red.
+    """
+    badge_palette = {
+        "blue": {"bg": "#eff6ff", "color": "#2563eb", "border": "#bfdbfe"},
+        "green": {"bg": "#ecfdf5", "color": "#10b981", "border": "#a7f3d0"},
+        "amber": {"bg": "#fffbeb", "color": "#f59e0b", "border": "#fde68a"},
+        "red": {"bg": "#fef2f2", "color": "#ef4444", "border": "#fca5a5"},
+        "neutral": {"bg": "#f8fafc", "color": "#475569", "border": "#e2e8f0"}
+    }
+    b = badge_palette.get(badge_color, badge_palette["neutral"])
+    badge_html = f'<span style="background:{b["bg"]}; color:{b["color"]}; border:1px solid {b["border"]}; font-size:11px; font-weight:600; padding:2px 8px; border-radius:6px; white-space:nowrap;">{badge_text}</span>' if badge_text else ''
+    
+    st.markdown(f"""
+    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:16px 18px; box-shadow:0 1px 3px 0 rgba(0,0,0,0.04); height:100%; display:flex; flex-direction:column; justify-content:space-between; margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.04em;">{label}</span>
+            {badge_html}
+        </div>
+        <div>
+            <div style="font-size:26px; font-weight:700; color:#0f172a; letter-spacing:-0.02em; line-height:1.1;">{value}</div>
+            {f'<div style="font-size:12px; color:#64748b; margin-top:6px; line-height:1.3;">{subtext}</div>' if subtext else ''}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 def render_initiative_card(item: dict):
-    """Renders a structured, accessible card for an initiative."""
+    """Renders a structured, accessible card for an initiative with health-colored progress bars."""
     health_styles = {
-        "On Track": {"color": "#059669", "bg": "#ecfdf5", "border": "#a7f3d0"},
-        "Needs Attention": {"color": "#d97706", "bg": "#fffbeb", "border": "#fde68a"},
-        "At Risk": {"color": "#dc2626", "bg": "#fef2f2", "border": "#fca5a5"}
+        "On Track": {"color": "#10b981", "bg": "#ecfdf5", "border": "#a7f3d0", "bar": "#10b981"},
+        "Needs Attention": {"color": "#f59e0b", "bg": "#fffbeb", "border": "#fde68a", "bar": "#f59e0b"},
+        "At Risk": {"color": "#ef4444", "bg": "#fef2f2", "border": "#fca5a5", "bar": "#ef4444"}
     }
     style = health_styles.get(item["health"], health_styles["On Track"])
 
@@ -479,22 +511,22 @@ def render_initiative_card(item: dict):
                 <span style="font-weight:700; color:#0f172a; font-size:14px;">{item['initiative']}</span>
                 <span style="font-size:12px; color:#64748b; margin-left:8px;">Lead: <b>{item['owner']}</b></span>
             </div>
-            <span style="background:{style['bg']}; color:{style['color']}; border:1px solid {style['border']}; padding:2px 8px; border-radius:4px; font-weight:700; font-size:10px; letter-spacing:0.04em;">
+            <span style="background:{style['bg']}; color:{style['color']}; border:1px solid {style['border']}; padding:2px 8px; border-radius:6px; font-weight:700; font-size:10px; letter-spacing:0.04em;">
                 {item['health'].upper()}
             </span>
         </div>
         <div style="display:flex; gap:16px; font-size:12px; color:#475569; margin-bottom:8px;">
             <span>Total: <b>{item['total_tasks']}</b></span>
-            <span>Completed: <b style="color:#059669;">{item['completed']}</b></span>
+            <span>Completed: <b style="color:#10b981;">{item['completed']}</b></span>
             <span>In Progress: <b style="color:#2563eb;">{item['in_progress']}</b></span>
-            <span>Blocked: <b style="color:#dc2626;">{item['blocked']}</b></span>
-            <span>Overdue: <b style="color:#b91c1c;">{item['overdue']}</b></span>
+            <span>Blocked: <b style="color:#ef4444;">{item['blocked']}</b></span>
+            <span>Overdue: <b style="color:#ef4444;">{item['overdue']}</b></span>
         </div>
-        <div style="background:#f1f5f9; border-radius:4px; height:6px; width:100%; overflow:hidden;">
-            <div style="background:#10b981; height:100%; width:{item['completion_rate']}%;"></div>
+        <div style="background:#f1f5f9; border-radius:6px; height:7px; width:100%; overflow:hidden;">
+            <div style="background:{style['bar']}; height:100%; width:{item['completion_rate']}%; border-radius:6px;"></div>
         </div>
-        <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-top:4px;">
-            <span>Current Sprint Commitment</span>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-top:6px;">
+            <span>Sprint Commitment</span>
             <span><b>{item['completion_rate']}% Complete</b></span>
         </div>
     </div>

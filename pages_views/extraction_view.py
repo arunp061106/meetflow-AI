@@ -20,18 +20,98 @@ def render_extraction_page():
     render_workflow_indicator("AI Extraction")
 
     ai_config = get_ai_config()
-    if ai_config["is_demo_mode"]:
-        st.markdown("""
-        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:6px; padding:10px 14px; margin-bottom:18px; font-size:12px; color:#475569;">
-            <b style="color:#0f172a;">Engine Mode:</b> Offline Deterministic Demo Engine. Operates without requiring an external API key.
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown(f"""
-        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:6px; padding:10px 14px; margin-bottom:18px; font-size:12px; color:#475569;">
-            <b style="color:#0f172a;">Engine Mode:</b> Live LLM Provider Connected (<code>{ai_config['model_name']}</code>).
-        </div>
-        """, unsafe_allow_html=True)
+    with st.expander("🔍 How this works: System Prompt, JSON Schema & SQLite Architecture", expanded=False):
+        tab_prompt, tab_schema, tab_sql = st.tabs(["Extraction Prompt & Guardrails", "Pydantic JSON Schema", "SQLite Tables & Isolation"])
+        
+        with tab_prompt:
+            st.markdown("##### System Prompt Sent to LLM (with Verbatim Guardrails)")
+            st.code("""You are an expert Enterprise Meeting Intelligence Extraction Assistant for MEETFLOW AI.
+Your purpose is to analyze executive meeting transcripts, sprint planning notes, and team syncs,
+and extract genuine actionable commitments with extreme precision.
+
+Extraction Rules:
+1. PRECISION OVER RECALL: Only extract genuine, actionable commitments where someone has agreed or was assigned to execute a specific deliverable.
+2. DO NOT INVENT OWNERS: Extract the real person responsible. If ambiguous or unknown, set 'Unassigned'. Never invent fake names.
+3. DO NOT INVENT DEADLINES: Only extract deadlines if explicitly stated (e.g. 'by Friday', 'by Oct 15'). Format as YYYY-MM-DD or null.
+4. PRESERVE SOURCE EVIDENCE: For EVERY action item, quote the exact supporting verbatim text from the transcript in 'evidence'.
+5. DISTINGUISH DECISIONS FROM ACTION ITEMS: Decisions go into 'decisions', commitments go into 'action_items'.
+6. FILTER OUT CASUAL DISCUSSION: Do not convert brainstorms or casual banter into tasks.
+7. ASSIGN PRIORITY CONSERVATIVELY: High (urgent blocker), Medium (standard deliverable), Low (documentation/minor).
+8. ASSIGN CONFIDENCE: Provide a realistic confidence score (0.0 to 1.0) reflecting explicit commitment clarity.
+9. STRICT JSON ONLY: Return ONLY a valid JSON object matching the requested schema. No markdown fences outside the JSON.""", language="markdown")
+
+        with tab_schema:
+            st.markdown("##### Strict Type Validation via Pydantic v2")
+            st.code("""class ExtractedActionItem(BaseModel):
+    title: str = Field(description="Actionable task title starting with a verb")
+    description: Optional[str] = Field(default="", description="Contextual details")
+    owner: str = Field(default="Unassigned", description="Specific person assigned")
+    deadline: Optional[str] = Field(default=None, description="YYYY-MM-DD or null")
+    priority: Literal["High", "Medium", "Low"] = Field(default="Medium")
+    initiative: Optional[str] = Field(default="General")
+    status: Literal["Not Started", "In Progress", "Blocked", "Completed"] = Field(default="Not Started")
+    confidence: float = Field(default=0.85, ge=0.0, le=1.0)
+    evidence: str = Field(description="Exact verbatim quotation from transcript")
+
+class MeetingExtractionResponse(BaseModel):
+    meeting_summary: str = Field(description="Executive recap of discussion")
+    decisions: List[str] = Field(default_factory=list)
+    risks: List[str] = Field(default_factory=list)
+    blockers: List[str] = Field(default_factory=list)
+    next_steps: List[str] = Field(default_factory=list)
+    action_items: List[ExtractedActionItem] = Field(default_factory=list)""", language="python")
+
+        with tab_sql:
+            st.markdown("##### Relational Schema & Staging Isolation Barrier")
+            st.code("""-- 1. Meetings Repository
+CREATE TABLE meetings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    meeting_date DATE NOT NULL,
+    transcript TEXT NOT NULL,
+    summary TEXT,
+    initiative TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Human-in-the-Loop Isolation Barrier (Raw LLM Output Staged Here)
+CREATE TABLE review_queue (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    meeting_id INTEGER REFERENCES meetings(id),
+    title TEXT NOT NULL,
+    owner TEXT NOT NULL,
+    deadline DATE,
+    priority TEXT NOT NULL,
+    initiative TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    evidence TEXT NOT NULL,
+    status TEXT DEFAULT 'Pending', -- Pending | Approved | Edited & Approved | Rejected
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. Official Corporate Tracker (Only Populated After Human Gate Authorization)
+CREATE TABLE tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    review_queue_id INTEGER REFERENCES review_queue(id),
+    title TEXT NOT NULL,
+    owner TEXT NOT NULL,
+    deadline DATE,
+    priority TEXT NOT NULL,
+    status TEXT NOT NULL,          -- Not Started | In Progress | Blocked | Completed
+    initiative TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Immutable Compliance Audit Trail
+CREATE TABLE audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    review_queue_id INTEGER REFERENCES review_queue(id),
+    action TEXT NOT NULL,          -- Approved | Edited & Approved | Rejected
+    before_state TEXT,             -- JSON snapshot before human edit
+    after_state TEXT,              -- JSON snapshot after human edit
+    reviewer_notes TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);""", language="sql")
 
     meetings = get_all_meetings()
     meeting_titles = ["-- Custom / Standalone Discussion Notes --"] + [f"Meeting #{m['id']}: {m['title']} ({m['meeting_date']})" for m in meetings]

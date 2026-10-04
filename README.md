@@ -33,58 +33,35 @@ MeetFlow AI transforms fragmented conversational discussions into auditable stra
 
 ## 🏗️ Architecture
 
-MeetFlow AI follows a clean, modular 4-tier enterprise architecture built on strict separation of concerns:
+MeetFlow AI follows a strict, unidirectional governance pipeline:
+
+```
+Meeting Transcript
+       ↓
+LLM Extraction Engine (Pydantic Schema + Verbatim Citation Guardrails)
+       ↓
+Review Queue [Staging Barrier] (Zero Unverified DB Mutation)
+       ↓
+Human Verification Gate (Approve / Edit / Reject)
+       ↓
+SQLite Persistent Database (Tasks + Immutable Audit Logs)
+       ↓
+Portfolio Analytics Engine (Initiative Health, Overdue SLAs, Velocity)
+       ↓
+Weekly Executive Status Report (Markdown, CSV, HTML)
+```
+
+### Complete System Architecture Diagram
 
 ```mermaid
-graph TD
-    subgraph UI ["Presentation Layer (Streamlit Enterprise Design System)"]
-        Dash[Executive Dashboard & AI Telemetry]
-        Meet[Meetings Repository]
-        Extr[AI Extraction Console]
-        Appr[Human Approval Queue]
-        Audit[Data Lineage & Audit Trail]
-        Trac[Initiative Task Tracker]
-        Anal[Portfolio Analytics]
-        Repo[Automated Status Reports]
-        Sett[Governance Settings]
-    end
-
-    subgraph Service ["Service & Business Logic Layer"]
-        MS[Meeting Service]
-        RS[Review & Governance Service]
-        TS[Task Lifecycle Service]
-        AS[Analytics & Telemetry Service]
-        RPS[Report Generator Service]
-    end
-
-    subgraph AI ["AI & Extraction Engine"]
-        EXTR[Prompt Engine & LLM Client]
-        VAL[Pydantic v2 Schema Validator]
-        DEMO[Deterministic Enterprise Fallback]
-    end
-
-    subgraph Data ["Data & Persistence Layer (SQLAlchemy 2.0 ORM)"]
-        DB[(SQLite / Enterprise DB Engine)]
-        INIT[initiatives]
-        MEET[meetings]
-        REVQ[review_queue]
-        TASK[tasks]
-        AUDT[audit_log]
-    end
-
-    Extr --> EXTR
-    EXTR --> VAL
-    EXTR -->|Fallback / No Key| DEMO
-    VAL --> RS
-    RS --> REVQ
-    Appr --> RS
-    RS --> TASK
-    RS --> AUDT
-    Audit --> AS --> AUDT
-    Dash --> AS --> DB
-    Trac --> TS --> TASK
-    Anal --> AS --> DB
-    Repo --> RPS --> DB
+flowchart LR
+    A[Meeting Transcript] --> B[AI Extractor Engine]
+    B --> C[Review Queue Staging]
+    C --> D{Human Reviewer Gate}
+    D -->|Approve / Edit| E[(SQLite Database)]
+    D -->|Reject| F[Audit Log Only]
+    E --> G[Portfolio Analytics]
+    E --> H[Weekly Status Report]
 ```
 
 ### Architectural Highlights
@@ -247,11 +224,40 @@ streamlit run app.py
 ```
 Open [http://localhost:8501](http://localhost:8501) in your browser.
 
-### 5. Run Automated QA Test Suite
+### 5. Run Pytest Test Suite
+```bash
+pytest -v
+```
+Executes the test suite in `tests/test_pipeline.py`:
+- `test_extracted_action_item_pydantic_validation`: Validates date parsing, confidence scaling [0.0, 1.0], and identity attribution.
+- `test_human_in_the_loop_isolation_barrier`: Proves that candidate items in `review_queue` never mutate the official `tasks` table without human approval.
+- `test_initiative_health_and_overdue_computation`: Validates dynamic multi-tier initiative health categorization (On Track, Needs Attention, At Risk).
+
+### 6. Run Comprehensive E2E System Test
 ```bash
 python qa_e2e_test.py
 ```
-Executes all 22 E2E workflow steps and 7 edge case validation tests.
+Runs 22 automated end-to-end user workflow steps and 7 defensive edge-case tests against SQLite persistence.
+
+---
+
+## 📸 Key Application Views & UI Showcase
+
+1. **Executive Dashboard**:
+   - 4 large headline KPIs (Active Tasks, Overdue, Pending Review, Completion Rate) with zero misleading trend arrows.
+   - Strategic Initiative Health with color-coded progress bars (Green `#10B981` On Track, Amber `#F59E0B` Needs Attention, Red `#EF4444` At Risk).
+   - Plotly Donut chart with legend and hover tooltips (no overlapping rotated text).
+   - Live AI Quality & Human-in-the-Loop Telemetry calculated directly from database records.
+
+2. **AI Action Item & Intelligence Extraction**:
+   - Ingestion console with built-in "How this works" technical expander showing LLM system prompt, Pydantic JSON schema, and relational SQLite table definitions.
+
+3. **Human Approval Queue & Governance Gate**:
+   - Human-in-the-loop review interface allowing one-click authorization, custom editing, or rejection with mandatory rationale.
+
+4. **Governance & Data Lineage Audit Trail**:
+   - Full 4-stage operational traceability: `Transcript Citation → AI Extraction → Human Review & Diff → Official Task Record`.
+   - Complete CSV compliance export.
 
 ---
 

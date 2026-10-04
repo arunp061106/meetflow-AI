@@ -240,11 +240,12 @@ Elena Rostova: We should also establish a cloud spend alert in Datadog when dail
                 "description": "Sync customer health score and churn risk into Salesforce Account custom fields.",
                 "owner": "David Kim",
                 "priority": "High",
-                "status": "Blocked",
+                "status": "Completed",
                 "initiative": "Customer Analytics Platform",
-                "deadline": today - timedelta(days=1),  # Overdue & Blocked
+                "deadline": today - timedelta(days=1),
                 "meeting_id": meetings[2].id,
-                "days_ago_created": 8
+                "days_ago_created": 8,
+                "completed_days_ago": 1
             },
             {
                 "title": "Design executive churn retention dashboard mockups in Figma",
@@ -345,9 +346,9 @@ Elena Rostova: We should also establish a cloud spend alert in Datadog when dail
                 "description": "Update Snowpipe ingest consumer to stream raw JSON web events continuously.",
                 "owner": "Alex Morgan",
                 "priority": "Medium",
-                "status": "Not Started",
+                "status": "Blocked",
                 "initiative": "Data Warehouse Migration",
-                "deadline": today + timedelta(days=9),
+                "deadline": today - timedelta(days=2),  # Overdue & Blocked
                 "meeting_id": meetings[7].id,
                 "days_ago_created": 4
             },
@@ -358,7 +359,7 @@ Elena Rostova: We should also establish a cloud spend alert in Datadog when dail
                 "priority": "Low",
                 "status": "Not Started",
                 "initiative": "Data Warehouse Migration",
-                "deadline": today + timedelta(days=14),
+                "deadline": today - timedelta(days=1),  # Overdue
                 "meeting_id": meetings[1].id,
                 "days_ago_created": 3
             },
@@ -426,9 +427,9 @@ Elena Rostova: We should also establish a cloud spend alert in Datadog when dail
                 "description": "Verify opt-out toggle completely halts Mixpanel and Datadog RUM network requests on launch.",
                 "owner": "Elena Rostova",
                 "priority": "High",
-                "status": "Blocked",
+                "status": "In Progress",
                 "initiative": "Mobile Application Launch",
-                "deadline": today - timedelta(days=2),  # Overdue & Blocked
+                "deadline": today - timedelta(days=2),  # Overdue
                 "meeting_id": meetings[4].id,
                 "days_ago_created": 9
             },
