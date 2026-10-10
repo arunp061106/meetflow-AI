@@ -1,4 +1,6 @@
 import os
+import shutil
+import tempfile
 from pathlib import Path
 from contextlib import contextmanager
 from sqlalchemy import create_engine
@@ -7,23 +9,73 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Determine project root and default DB path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-DEFAULT_DB_PATH = DATA_DIR / "meetflow.db"
-DEFAULT_DB_URL = f"sqlite:///{DEFAULT_DB_PATH.as_posix()}"
+def _is_dir_writable(path: Path) -> bool:
+    """Test if a directory is writable by attempting to create and delete a probe file."""
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        probe = path / ".write_probe"
+        probe.write_text("ok")
+        probe.unlink()
+        return True
+    except (OSError, PermissionError):
+        return False
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    DATABASE_URL = DEFAULT_DB_URL
-elif DATABASE_URL.startswith("sqlite:///./"):
-    # Resolve relative sqlite path relative to PROJECT_ROOT
-    rel_path = DATABASE_URL.replace("sqlite:///./", "")
-    full_path = PROJECT_ROOT / rel_path
-    full_path.parent.mkdir(parents=True, exist_ok=True)
-    DATABASE_URL = f"sqlite:///{full_path.as_posix()}"
+def resolve_db_path_and_url() -> tuple[Path, str]:
+    """
+    Intelligently resolves a writable database path and SQLAlchemy URL.
+    Handles:
+    - Custom DATABASE_URL from environment or Streamlit secrets (Postgres, remote, etc.)
+    - Local project /data directory when writable
+    - Read-only environments like Streamlit Community Cloud (/mount/src/) by falling back to /tmp
+    """
+    env_db_url = os.getenv("DATABASE_URL")
+    if not env_db_url:
+        try:
+            import streamlit as st
+            if "DATABASE_URL" in st.secrets:
+                env_db_url = st.secrets["DATABASE_URL"]
+        except Exception:
+            pass
+
+    # If external database (e.g. postgresql://, mysql://), pass through directly
+    if env_db_url and not env_db_url.startswith("sqlite"):
+        return Path("remote_db"), env_db_url
+
+    # In-memory database requested
+    if env_db_url and ":memory:" in env_db_url:
+        return Path(":memory:"), env_db_url
+
+    # Check if a custom relative sqlite path was provided
+    if env_db_url and env_db_url.startswith("sqlite:///./"):
+        rel_path = env_db_url.replace("sqlite:///./", "")
+        custom_target = PROJECT_ROOT / rel_path
+        if _is_dir_writable(custom_target.parent):
+            return custom_target, f"sqlite:///{custom_target.as_posix()}"
+
+    # Primary choice: Project data folder
+    primary_data_dir = PROJECT_ROOT / "data"
+    if _is_dir_writable(primary_data_dir):
+        db_path = primary_data_dir / "meetflow.db"
+    else:
+        # Fallback for read-only deployments (Streamlit Cloud mounts, Docker containers, etc.)
+        fallback_dir = Path(tempfile.gettempdir()) / "meetflow_data"
+        fallback_dir.mkdir(parents=True, exist_ok=True)
+        db_path = fallback_dir / "meetflow.db"
+
+        # If a pre-seeded db exists in repo, copy it to the writable temp directory
+        seed_db = primary_data_dir / "meetflow.db"
+        if seed_db.exists() and not db_path.exists():
+            try:
+                shutil.copy2(seed_db, db_path)
+            except Exception:
+                pass
+
+    db_url = f"sqlite:///{db_path.as_posix()}"
+    return db_path, db_url
+
+DEFAULT_DB_PATH, DATABASE_URL = resolve_db_path_and_url()
 
 engine = create_engine(
     DATABASE_URL,
