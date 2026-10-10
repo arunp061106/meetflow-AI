@@ -21,7 +21,8 @@ def render_tracker_page():
     render_page_header(
         title="Official Initiative & Deliverable Tracker",
         subtitle="Persistent system of record for authorized action items, operational owners, and delivery status",
-        badge_text="System of Record"
+        badge_text="System of Record",
+        highlight_word="Tracker"
     )
 
     render_workflow_indicator("Initiative Tracker")
@@ -32,8 +33,8 @@ def render_tracker_page():
     initiative_names = [i["name"] for i in initiatives]
 
     with tab_manual:
-        st.markdown("<div style='font-size:15px; font-weight:700; color:#0f172a; margin-bottom:6px;'>Create Authorized Task Directly</div>", unsafe_allow_html=True)
-        st.markdown("<div style='font-size:13px; color:#64748b; margin-bottom:16px;'>Manual creation bypasses AI extraction while preserving complete audit logging and accountability.</div>", unsafe_allow_html=True)
+        st.markdown("<h3 class='calistoga-heading' style='font-size:18px; margin-bottom:6px;'>Create Authorized Task Directly</h3>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:13px; color:#64748B; margin-bottom:18px;'>Manual creation bypasses AI extraction while preserving complete audit logging and governance accountability.</div>", unsafe_allow_html=True)
 
         with st.form("manual_task_form", clear_on_submit=True):
             title_col, owner_col = st.columns([7, 5])
@@ -106,7 +107,7 @@ def render_tracker_page():
         with stat_cols[4]:
             st.metric("Overdue", overdue_count, delta="Escalate" if overdue_count > 0 else None, delta_color="inverse")
 
-        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 
         if not tasks:
             render_empty_state("No Tasks Match Active Filters", "Adjust your search filters or create new tasks to populate the tracker.")
@@ -117,16 +118,16 @@ def render_tracker_page():
             task_id = task["id"]
             is_overdue = task["is_overdue"]
 
-            border_accent = "border-left: 4px solid #ef4444;" if is_overdue else ("border-left: 4px solid #10b981;" if task["status"] == "Completed" else "border-left: 4px solid #cbd5e1;")
+            border_accent = "border-left: 4px solid #EF4444;" if is_overdue else ("border-left: 4px solid #10B981;" if task["status"] == "Completed" else "border-left: 4px solid #0052FF;")
 
             with st.container():
                 st.markdown(f"""
-                <div style="background:#ffffff; border-top:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; {border_accent} border-radius:8px; padding:16px 18px; margin-bottom:10px; box-shadow:0 1px 2px rgba(0,0,0,0.02);">
+                <div style="background:#FFFFFF; border-top:1px solid #E2E8F0; border-right:1px solid #E2E8F0; border-bottom:1px solid #E2E8F0; {border_accent} border-radius:12px; padding:18px 20px; margin-bottom:12px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <span style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">TASK #{task_id}</span>
-                            <div style="font-size:15px; font-weight:600; color:#0f172a; margin-top:2px;">{task['title']}</div>
-                            <div style="font-size:12px; color:#64748b; margin:4px 0 6px 0;">
+                            <span style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:#0052FF; text-transform:uppercase; letter-spacing:0.06em;">TASK #{task_id}</span>
+                            <div style="font-size:15px; font-weight:600; color:#0F172A; margin-top:2px;">{task['title']}</div>
+                            <div style="font-size:12px; color:#64748B; margin:4px 0 6px 0;">
                                 Owner: <b>{task['owner']}</b> &bull; 
                                 Initiative: <b>{task['initiative']}</b> &bull; 
                                 Target: <b>{format_date_str(task['deadline'])}</b> ({get_relative_deadline_str(task['deadline'], task['status'])}) &bull;
@@ -138,7 +139,7 @@ def render_tracker_page():
                             {get_priority_badge_html(task['priority'])}
                         </div>
                     </div>
-                    {f"<div style='font-size:13px; color:#334155; margin-top:6px; line-height:1.4;'>{task['description']}</div>" if task['description'] else ""}
+                    {f"<div style='font-size:13px; color:#334155; margin-top:6px; line-height:1.45;'>{task['description']}</div>" if task['description'] else ""}
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -164,7 +165,8 @@ def render_tracker_page():
                     show_edit_drawer = st.checkbox("Edit Details", key=f"edit_drawer_{task_id}")
 
                 if show_edit_drawer:
-                    st.markdown("<div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:14px; margin-top:8px;'>", unsafe_allow_html=True)
+                    st.markdown("<div style='background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:18px; margin-top:10px; box-shadow:0 4px 12px rgba(0,0,0,0.03);'>", unsafe_allow_html=True)
+                    st.markdown("<h4 class='calistoga-heading' style='font-size:15px; margin-bottom:12px;'>Edit Task Details</h4>", unsafe_allow_html=True)
                     with st.form(f"edit_task_form_{task_id}"):
                         edit_title = st.text_input("Title", value=task["title"])
                         edit_desc = st.text_area("Scope & Details", value=task["description"] or "", height=70)

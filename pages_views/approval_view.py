@@ -23,7 +23,8 @@ def render_approval_page():
     render_page_header(
         title="Human-in-the-Loop Deliverables Authorization",
         subtitle="Mandatory verification gate for AI-extracted commitments before official system recording",
-        badge_text="Governance Gate"
+        badge_text="Governance Gate",
+        highlight_word="Authorization"
     )
 
     render_workflow_indicator("Approval Queue")
@@ -50,7 +51,7 @@ def render_approval_page():
         initiative_names = [i["name"] for i in initiatives]
 
         # Active Queue Count
-        st.markdown(f"<div style='font-size:13px; color:#475569; margin: 4px 0 16px 0;'>Showing <b>{len(items)}</b> candidate commitment(s)</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-size:12px; color:#64748B; margin: 4px 0 16px 0; font-family:var(--font-mono);'>Showing <b>{len(items)}</b> candidate commitment(s)</div>", unsafe_allow_html=True)
 
         if not items:
             if status_filter == "Pending":
@@ -74,7 +75,7 @@ def render_approval_page():
                 <div class="approval-card">
                     <div class="approval-card-header">
                         <div>
-                            <span style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.04em;">CANDIDATE #{item_id}</span>
+                            <span style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:#0052FF; text-transform:uppercase; letter-spacing:0.08em;">CANDIDATE #{item_id}</span>
                             <div class="approval-card-title">{item['title']}</div>
                         </div>
                         <div style="display:flex; gap:6px;">
@@ -103,7 +104,7 @@ def render_approval_page():
                         </div>
                     </div>
 
-                    <div style="font-size:13px; color:#334155; margin: 8px 0;">
+                    <div style="font-size:13px; color:#334155; margin: 8px 0; line-height:1.5;">
                         {item['description'] or 'No supplemental notes provided.'}
                     </div>
 
@@ -135,8 +136,8 @@ def render_approval_page():
 
                     # Inline Edit Form
                     if show_edit:
-                        st.markdown("<div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:16px; margin: 10px 0;'>", unsafe_allow_html=True)
-                        st.markdown("<div style='font-size:13px; font-weight:700; color:#0f172a; margin-bottom:10px;'>Adjust Deliverable Parameters:</div>", unsafe_allow_html=True)
+                        st.markdown("<div style='background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:18px; margin: 12px 0; box-shadow:0 4px 12px rgba(0,0,0,0.03);'>", unsafe_allow_html=True)
+                        st.markdown("<h4 class='calistoga-heading' style='font-size:15px; margin-bottom:12px;'>Adjust Deliverable Parameters</h4>", unsafe_allow_html=True)
                         with st.form(f"edit_form_{item_id}"):
                             new_title = st.text_input("Deliverable Title", value=item["title"])
                             new_desc = st.text_area("Scope & Acceptance Notes", value=item["description"] or "", height=70)
@@ -181,11 +182,10 @@ def render_approval_page():
                 
                 st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
-
     with tab_history:
         from services.analytics_service import get_full_lineage_audit_trail
-        st.markdown("<div style='font-size:15px; font-weight:700; color:#0f172a; margin-bottom:6px;'>Governance Lineage & Audit Trail</div>", unsafe_allow_html=True)
-        st.markdown("<div style='font-size:13px; color:#64748b; margin-bottom:14px;'>Traceability lifecycle: <b>AI Generated &rarr; Human Edited &rarr; Approved / Rejected &rarr; Official Tracker</b>.</div>", unsafe_allow_html=True)
+        st.markdown("<h3 class='calistoga-heading' style='font-size:18px; margin-bottom:6px;'>Governance Lineage & Audit Trail</h3>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:13px; color:#64748B; margin-bottom:16px;'>Traceability lifecycle: <b>AI Generated &rarr; Human Edited &rarr; Approved / Rejected &rarr; Official Tracker</b>.</div>", unsafe_allow_html=True)
 
         sub_tab1, sub_tab2 = st.tabs(["Visual Data Lineage Pipeline", "Raw Event Audit Logs"])
 
@@ -199,42 +199,42 @@ def render_approval_page():
                     has_task = item["task_id"] is not None
                     status = item["status"]
 
-                    dec_color = "#059669" if status in ["Approved", "Edited & Approved"] else ("#dc2626" if status == "Rejected" else "#b45309")
-                    dec_bg = "#ecfdf5" if status in ["Approved", "Edited & Approved"] else ("#fef2f2" if status == "Rejected" else "#fffbeb")
-                    dec_border = "#a7f3d0" if status in ["Approved", "Edited & Approved"] else ("#fecaca" if status == "Rejected" else "#fde68a")
+                    dec_color = "#10B981" if status in ["Approved", "Edited & Approved"] else ("#EF4444" if status == "Rejected" else "#D97706")
+                    dec_bg = "#ECFDF5" if status in ["Approved", "Edited & Approved"] else ("#FEF2F2" if status == "Rejected" else "#FFFBEB")
+                    dec_border = "#A7F3D0" if status in ["Approved", "Edited & Approved"] else ("#FCA5A5" if status == "Rejected" else "#FDE68A")
                     dec_label = "AUTHORIZED" if status in ["Approved", "Edited & Approved"] else (status.upper())
 
                     trk_label = f"Task #{item['task_id']} ({item['task_status']})" if has_task else ("Not in Tracker" if status == "Rejected" else "Pending Review")
 
                     st.markdown(f"""
-                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:14px 16px; margin-bottom:12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                            <span style="font-size:12px; font-weight:700; color:#0f172a;">#{item['review_id']}. {item['ai_title']}</span>
-                            <span style="font-size:11px; color:#64748b;">Source: {item['meeting_title']} &bull; {item['reviewed_at'] or 'Pending'}</span>
+                    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:16px 18px; margin-bottom:12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <span style="font-weight:700; color:#0F172A; font-size:13px;">#{item['review_id']}. {item['ai_title']}</span>
+                            <span style="font-family:var(--font-mono); font-size:11px; color:#64748B;">Source: {item['meeting_title']} &bull; {item['reviewed_at'] or 'Pending'}</span>
                         </div>
-                        <div style="display:grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items:center; gap:6px; font-size:11px;">
-                            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; padding:8px;">
-                                <div style="font-weight:700; color:#2563eb;">1. AI GENERATED</div>
-                                <div style="color:#64748b; margin-top:2px;">Conf: <b>{item['ai_confidence']}%</b></div>
-                                <div style="color:#64748b;">Owner: <b>{item['ai_owner']}</b></div>
+                        <div style="display:grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items:center; gap:8px; font-size:11px;">
+                            <div style="background:#FAFAFA; border:1px solid #E2E8F0; border-radius:8px; padding:10px;">
+                                <div style="font-family:var(--font-mono); font-weight:700; color:#0052FF; font-size:10px;">1. AI INFERRED</div>
+                                <div style="color:#64748B; margin-top:2px;">Conf: <b>{item['ai_confidence']}%</b></div>
+                                <div style="color:#64748B;">Owner: <b>{item['ai_owner']}</b></div>
                             </div>
-                            <div style="color:#94a3b8; font-weight:700; text-align:center;">&rarr;</div>
-                            <div style="background:{'#fefce8' if is_edited else '#f8fafc'}; border:1px solid {'#fde047' if is_edited else '#e2e8f0'}; border-radius:4px; padding:8px;">
-                                <div style="font-weight:700; color:{'#a16207' if is_edited else '#64748b'};">2. HUMAN EDIT</div>
-                                <div style="color:#0f172a; margin-top:2px;">{'Modified by Reviewer' if is_edited else 'Validated As-Is'}</div>
+                            <div style="color:#94A3B8; font-weight:700; text-align:center;">&rarr;</div>
+                            <div style="background:{'#FFFBEB' if is_edited else '#FAFAFA'}; border:1px solid {'#FDE68A' if is_edited else '#E2E8F0'}; border-radius:8px; padding:10px;">
+                                <div style="font-family:var(--font-mono); font-weight:700; color:{'#D97706' if is_edited else '#64748B'}; font-size:10px;">2. HUMAN EDIT</div>
+                                <div style="color:#0F172A; margin-top:2px;">{'Modified by Reviewer' if is_edited else 'Validated As-Is'}</div>
                             </div>
-                            <div style="color:#94a3b8; font-weight:700; text-align:center;">&rarr;</div>
-                            <div style="background:{dec_bg}; border:1px solid {dec_border}; border-radius:4px; padding:8px;">
-                                <div style="font-weight:700; color:{dec_color};">3. GATE DECISION</div>
+                            <div style="color:#94A3B8; font-weight:700; text-align:center;">&rarr;</div>
+                            <div style="background:{dec_bg}; border:1px solid {dec_border}; border-radius:8px; padding:10px;">
+                                <div style="font-family:var(--font-mono); font-weight:700; color:{dec_color}; font-size:10px;">3. GATE DECISION</div>
                                 <div style="color:{dec_color}; font-weight:700; margin-top:2px;">{dec_label}</div>
                             </div>
-                            <div style="color:#94a3b8; font-weight:700; text-align:center;">&rarr;</div>
-                            <div style="background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:8px;">
-                                <div style="font-weight:700; color:#1e293b;">4. TRACKER</div>
-                                <div style="color:#2563eb; font-weight:600; margin-top:2px;">{trk_label}</div>
+                            <div style="color:#94A3B8; font-weight:700; text-align:center;">&rarr;</div>
+                            <div style="background:#F1F5F9; border:1px solid #E2E8F0; border-radius:8px; padding:10px;">
+                                <div style="font-family:var(--font-mono); font-weight:700; color:#0F172A; font-size:10px;">4. TRACKER</div>
+                                <div style="color:#0052FF; font-weight:600; margin-top:2px;">{trk_label}</div>
                             </div>
                         </div>
-                        {f"<div style='font-size:11px; color:#92400e; margin-top:6px; background:#fffbeb; padding:4px 8px; border-radius:4px;'><b>Diff:</b> Before: {item['before_edit']} | After: {item['after_edit']}</div>" if is_edited else ""}
+                        {f"<div style='font-size:11px; color:#92400E; margin-top:8px; background:#FFFBEB; border:1px solid #FDE68A; padding:6px 10px; border-radius:6px;'><b>Diff:</b> Before: {item['before_edit']} | After: {item['after_edit']}</div>" if is_edited else ""}
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -244,19 +244,18 @@ def render_approval_page():
                 render_empty_state("No Audit Records", "Governance decisions will be catalogued here as reviews are conducted.")
             else:
                 for l in logs:
-                    action_color = "#059669" if "APPROV" in l["action"] else ("#dc2626" if "REJECT" in l["action"] else "#2563eb")
+                    action_color = "#10B981" if "APPROV" in l["action"] else ("#EF4444" if "REJECT" in l["action"] else "#0052FF")
                     st.markdown(f"""
-                    <div style="background:#ffffff; border-left:3px solid {action_color}; border-top:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; border-radius:6px; padding:12px 16px; margin-bottom:8px;">
+                    <div style="background:#FFFFFF; border-left:3px solid {action_color}; border-top:1px solid #E2E8F0; border-right:1px solid #E2E8F0; border-bottom:1px solid #E2E8F0; border-radius:10px; padding:14px 18px; margin-bottom:8px; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-weight:700; color:#0f172a; font-size:13px;">
+                            <span style="font-weight:700; color:#0F172A; font-size:13px;">
                                 {l['action']} &bull; {l['entity_type'].upper()} #{l['entity_id']}
                             </span>
-                            <span style="font-size:11px; color:#64748b;">{l['timestamp']}</span>
+                            <span style="font-family:var(--font-mono); font-size:11px; color:#64748B;">{l['timestamp']}</span>
                         </div>
                         <div style="font-size:12px; color:#334155; margin-top:4px;">
                             <b>Record:</b> {l['new_value']}
                         </div>
-                        {f"<div style='font-size:11px; color:#64748b; margin-top:2px;'><b>Previous State:</b> {l['old_value']}</div>" if l['old_value'] else ""}
+                        {f"<div style='font-size:11px; color:#64748B; margin-top:2px;'><b>Previous State:</b> {l['old_value']}</div>" if l['old_value'] else ""}
                     </div>
                     """, unsafe_allow_html=True)
-

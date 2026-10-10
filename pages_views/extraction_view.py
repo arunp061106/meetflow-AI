@@ -14,17 +14,18 @@ def render_extraction_page():
     render_page_header(
         title="AI Action Item & Intelligence Extraction",
         subtitle="Automated extraction of commitments, owners, deadlines, and verbatim evidence quotes",
-        badge_text="Inference Engine"
+        badge_text="Inference Engine",
+        highlight_word="Extraction"
     )
 
     render_workflow_indicator("AI Extraction")
 
     ai_config = get_ai_config()
-    with st.expander("🔍 How this works: System Prompt, JSON Schema & SQLite Architecture", expanded=False):
+    with st.expander("🔍 Architecture & Verification: System Prompt, Schema & Isolation Barrier", expanded=False):
         tab_prompt, tab_schema, tab_sql = st.tabs(["Extraction Prompt & Guardrails", "Pydantic JSON Schema", "SQLite Tables & Isolation"])
         
         with tab_prompt:
-            st.markdown("##### System Prompt Sent to LLM (with Verbatim Guardrails)")
+            st.markdown("<h4 class='calistoga-heading' style='font-size:15px;'>System Prompt Sent to LLM (with Verbatim Guardrails)</h4>", unsafe_allow_html=True)
             st.code("""You are an expert Enterprise Meeting Intelligence Extraction Assistant for MEETFLOW AI.
 Your purpose is to analyze executive meeting transcripts, sprint planning notes, and team syncs,
 and extract genuine actionable commitments with extreme precision.
@@ -41,7 +42,7 @@ Extraction Rules:
 9. STRICT JSON ONLY: Return ONLY a valid JSON object matching the requested schema. No markdown fences outside the JSON.""", language="markdown")
 
         with tab_schema:
-            st.markdown("##### Strict Type Validation via Pydantic v2")
+            st.markdown("<h4 class='calistoga-heading' style='font-size:15px;'>Strict Type Validation via Pydantic v2</h4>", unsafe_allow_html=True)
             st.code("""class ExtractedActionItem(BaseModel):
     title: str = Field(description="Actionable task title starting with a verb")
     description: Optional[str] = Field(default="", description="Contextual details")
@@ -62,7 +63,7 @@ class MeetingExtractionResponse(BaseModel):
     action_items: List[ExtractedActionItem] = Field(default_factory=list)""", language="python")
 
         with tab_sql:
-            st.markdown("##### Relational Schema & Staging Isolation Barrier")
+            st.markdown("<h4 class='calistoga-heading' style='font-size:15px;'>Relational Schema & Staging Isolation Barrier</h4>", unsafe_allow_html=True)
             st.code("""-- 1. Meetings Repository
 CREATE TABLE meetings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -171,7 +172,7 @@ CREATE TABLE audit_logs (
     with col_btn:
         extract_button = st.button("Extract Action Items", type="primary", use_container_width=True)
     with col_info:
-        st.markdown("<div style='font-size:12px; color:#64748b; padding-top:6px;'>Inferred tasks are staged in the Approval Queue with verbatim evidence. AI suggestions are never committed automatically.</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:12px; color:#64748B; padding-top:8px;'>Inferred tasks are staged in the Approval Queue with verbatim evidence. AI suggestions are never committed automatically.</div>", unsafe_allow_html=True)
 
     if extract_button:
         if not transcript_input or not transcript_input.strip():
@@ -212,18 +213,18 @@ CREATE TABLE audit_logs (
         count = st.session_state.get("last_extracted_count", len(ext.action_items))
         dup_count = st.session_state.get("last_duplicate_count", 0)
 
-        st.markdown("<hr style='margin: 24px 0 16px 0; border:0; border-top:1px solid #e2e8f0;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='margin: 24px 0 16px 0; border:0; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
         st.success(f"{msg}")
         if dup_count > 0:
             st.info(f"{dup_count} duplicate item(s) already existed in the review queue and were skipped.")
 
         # Governance Staging Box
         st.markdown(f"""
-        <div style="background:#ffffff; border-left:4px solid #2563eb; border-top:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; border-radius:6px; padding:14px 18px; margin-bottom:18px;">
-            <div style="font-weight:700; color:#0f172a; font-size:14px; margin-bottom:4px;">
+        <div style="background:#FFFFFF; border-left:4px solid #0052FF; border-top:1px solid #E2E8F0; border-right:1px solid #E2E8F0; border-bottom:1px solid #E2E8F0; border-radius:12px; padding:16px 20px; margin-bottom:20px; box-shadow:0 4px 12px rgba(0,82,255,0.04);">
+            <div style="font-family:var(--font-display); font-size:16px; color:#0F172A; margin-bottom:4px;">
                 Human Verification Gate: {count} Action Item(s) Staged in Review Queue
             </div>
-            <div style="font-size:12px; color:#475569; line-height:1.5;">
+            <div style="font-size:12px; color:#475569; line-height:1.55;">
                 <b>AI suggestions are never committed automatically. Every action item requires human verification.</b>
                 Please review, modify, or authorize these items in the Approval Queue before they enter official initiative tracking.
             </div>
@@ -237,10 +238,10 @@ CREATE TABLE audit_logs (
         # Display Meeting Synthesis
         col_s1, col_s2 = st.columns(2)
         with col_s1:
-            st.markdown("<div style='font-size:14px; font-weight:700; color:#0f172a; margin-bottom:6px;'>Executive Summary</div>", unsafe_allow_html=True)
+            st.markdown("<h4 class='calistoga-heading' style='font-size:15px; margin-bottom:6px;'>Executive Summary</h4>", unsafe_allow_html=True)
             st.info(ext.meeting_summary)
 
-            st.markdown("<div style='font-size:14px; font-weight:700; color:#0f172a; margin: 12px 0 6px 0;'>Key Decisions</div>", unsafe_allow_html=True)
+            st.markdown("<h4 class='calistoga-heading' style='font-size:15px; margin: 14px 0 6px 0;'>Key Decisions</h4>", unsafe_allow_html=True)
             if ext.decisions:
                 for d in ext.decisions:
                     st.markdown(f"- {d}")
@@ -248,7 +249,7 @@ CREATE TABLE audit_logs (
                 st.caption("No explicit strategic decisions recorded.")
 
         with col_s2:
-            st.markdown("<div style='font-size:14px; font-weight:700; color:#0f172a; margin-bottom:6px;'>Identified Risks & Blockers</div>", unsafe_allow_html=True)
+            st.markdown("<h4 class='calistoga-heading' style='font-size:15px; margin-bottom:6px;'>Identified Risks & Blockers</h4>", unsafe_allow_html=True)
             if ext.risks or ext.blockers:
                 for r in ext.risks:
                     st.markdown(f"- **Risk:** {r}")
@@ -257,7 +258,7 @@ CREATE TABLE audit_logs (
             else:
                 st.caption("No critical operational risks or blockers detected.")
 
-            st.markdown("<div style='font-size:14px; font-weight:700; color:#0f172a; margin: 12px 0 6px 0;'>Milestone Next Steps</div>", unsafe_allow_html=True)
+            st.markdown("<h4 class='calistoga-heading' style='font-size:15px; margin: 14px 0 6px 0;'>Milestone Next Steps</h4>", unsafe_allow_html=True)
             if ext.next_steps:
                 for ns in ext.next_steps:
                     st.markdown(f"- {ns}")
@@ -265,14 +266,59 @@ CREATE TABLE audit_logs (
                 st.caption("Standard operational rhythm applies.")
 
         # Display Extracted Action Items
-        st.markdown(f"<div style='font-size:16px; font-weight:700; color:#0f172a; margin: 20px 0 10px 0;'>Extracted Candidate Deliverables ({len(ext.action_items)})</div>", unsafe_allow_html=True)
+        st.markdown(f"<h3 class='calistoga-heading' style='font-size:18px; margin: 24px 0 12px 0;'>Extracted Candidate Deliverables ({len(ext.action_items)})</h3>", unsafe_allow_html=True)
         for i, item in enumerate(ext.action_items, 1):
-            with st.container():
-                st.markdown(f"""
+            is_high_conf = item.confidence >= 0.90
+            card_class = "approval-card"
+            if is_high_conf:
+                # 2px gradient stroke technique for high-confidence items
+                card_html = f"""
+                <div class="kpi-card-featured" style="margin-bottom:14px;">
+                    <div class="kpi-card-featured-inner">
+                        <div class="approval-card-header">
+                            <div>
+                                <span style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:#0052FF; text-transform:uppercase; letter-spacing:0.06em;">CANDIDATE #{i} &bull; HIGH CONFIDENCE MATCH</span>
+                                <div class="approval-card-title">{item.title}</div>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                {get_priority_badge_html(item.priority)}
+                                {get_confidence_badge_html(item.confidence)}
+                            </div>
+                        </div>
+                        <div class="approval-meta-grid">
+                            <div>
+                                <div class="meta-item-label">Owner</div>
+                                <div class="meta-item-val">{item.owner}</div>
+                            </div>
+                            <div>
+                                <div class="meta-item-label">Deadline</div>
+                                <div class="meta-item-val">{item.deadline or 'None'}</div>
+                            </div>
+                            <div>
+                                <div class="meta-item-label">Initiative</div>
+                                <div class="meta-item-val">{item.initiative or 'General'}</div>
+                            </div>
+                            <div>
+                                <div class="meta-item-label">Status</div>
+                                <div class="meta-item-val">Pending Authorization</div>
+                            </div>
+                        </div>
+                        <div style="font-size:13px; color:#334155; margin: 8px 0;">
+                            {item.description}
+                        </div>
+                        <div class="evidence-dossier">
+                            <div class="evidence-label">Verbatim Supporting Evidence</div>
+                            <div class="evidence-text">"{item.evidence}"</div>
+                        </div>
+                    </div>
+                </div>
+                """
+            else:
+                card_html = f"""
                 <div class="approval-card">
                     <div class="approval-card-header">
                         <div>
-                            <span style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">CANDIDATE #{i}</span>
+                            <span style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.06em;">CANDIDATE #{i}</span>
                             <div class="approval-card-title">{item.title}</div>
                         </div>
                         <div style="display:flex; gap:6px;">
@@ -298,7 +344,7 @@ CREATE TABLE audit_logs (
                             <div class="meta-item-val">Pending Authorization</div>
                         </div>
                     </div>
-                    <div style="font-size:13px; color:#334155; margin: 6px 0;">
+                    <div style="font-size:13px; color:#334155; margin: 8px 0;">
                         {item.description}
                     </div>
                     <div class="evidence-dossier">
@@ -306,4 +352,6 @@ CREATE TABLE audit_logs (
                         <div class="evidence-text">"{item.evidence}"</div>
                     </div>
                 </div>
-                """, unsafe_allow_html=True)
+                """
+            with st.container():
+                st.markdown(card_html, unsafe_allow_html=True)

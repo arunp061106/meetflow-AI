@@ -95,11 +95,14 @@ with st.sidebar:
 
     # Mandatory Human-in-the-Loop Callout in Sidebar
     st.markdown("""
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 3px solid #2563eb; border-radius: 8px; padding: 12px 14px; margin-top: 14px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);">
-        <div style="color: #2563eb; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;">
-            Governance Policy
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 3px solid #0052FF; border-radius: 12px; padding: 14px 15px; margin-top: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #0052FF; display: inline-block;"></span>
+            <span style="color: #0052FF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;">
+                Governance Policy
+            </span>
         </div>
-        <div style="font-size: 11px; color: #475569; line-height: 1.5;">
+        <div style="font-size: 11px; color: #475569; line-height: 1.55;">
             <b>AI suggestions are never committed automatically.</b> Every action item requires explicit human verification before tracker entry.
         </div>
     </div>
@@ -111,23 +114,23 @@ with st.sidebar:
     ai_cfg = get_ai_config()
     if ai_cfg["is_demo_mode"]:
         st.markdown("""
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 11px; color: #475569; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.02);">
-            <div style="color: #2563eb; font-weight: 600;">Engine: Offline Demo Engine</div>
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 13px; font-size: 11px; color: #475569; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="color: #0052FF; font-weight: 600; font-size: 11px;">Engine: Offline Demo Engine</div>
             <div style="color: #64748b; font-size: 10px; margin-top: 2px;">Zero-setup deterministic extraction</div>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown(f"""
-        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 8px 12px; font-size: 11px; color: #065f46;">
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 10px 13px; font-size: 11px; color: #065f46;">
             <div style="color: #059669; font-weight: 600;">Engine: Live LLM Connected</div>
             <div style="color: #047857; font-size: 10px; margin-top: 2px;">Model: <code>{ai_cfg['model_name']}</code></div>
         </div>
         """, unsafe_allow_html=True)
 
-    # Credibility footer: v1.0 · Demo build
+    # Credibility footer
     st.markdown("""
-    <div style="margin-top: 20px; font-size: 10px; color: #64748b; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-        MeetFlow AI &bull; v1.0 &middot; Demo build &bull; SQLite Persistence
+    <div style="margin-top: 24px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 14px; letter-spacing: 0.04em;">
+        MEETFLOW AI &bull; v1.0 &middot; SQLite
     </div>
     """, unsafe_allow_html=True)
 

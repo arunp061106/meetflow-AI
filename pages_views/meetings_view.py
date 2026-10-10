@@ -7,7 +7,8 @@ def render_meetings_page():
     render_page_header(
         title="Meetings & Intelligence Repository",
         subtitle="Centralized management of executive synopses, discussion notes, and verbatim transcripts",
-        badge_text="Repository"
+        badge_text="Repository",
+        highlight_word="Repository"
     )
 
     render_workflow_indicator("AI Extraction")
@@ -19,8 +20,8 @@ def render_meetings_page():
     meeting_types = ["Project Review", "Sprint Planning", "Client Meeting", "Management Review", "Team Meeting", "Other"]
 
     with tab_create:
-        st.markdown("<div style='font-size:15px; font-weight:700; color:#0f172a; margin-bottom:8px;'>Record Meeting & Ingest Transcript</div>", unsafe_allow_html=True)
-        st.markdown("<div style='font-size:13px; color:#64748b; margin-bottom:16px;'>Ingest meeting notes or audio transcripts for automated intelligence extraction and commitment tracking.</div>", unsafe_allow_html=True)
+        st.markdown("<h3 class='calistoga-heading' style='font-size:18px; margin-bottom:6px;'>Record Meeting & Ingest Transcript</h3>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:13px; color:#64748B; margin-bottom:18px;'>Ingest meeting notes or audio transcripts for automated intelligence extraction and commitment tracking.</div>", unsafe_allow_html=True)
 
         with st.form("new_meeting_form", clear_on_submit=True):
             col_t1, col_t2 = st.columns([7, 5])
@@ -95,7 +96,7 @@ def render_meetings_page():
                 or (m["transcript"] and sq in m["transcript"].lower())
             ]
 
-        st.markdown(f"<div style='font-size:12px; color:#64748b; margin: 4px 0 14px 0;'>Showing <b>{len(filtered)}</b> recorded meeting session(s)</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-size:12px; color:#64748B; margin: 4px 0 16px 0; font-family:var(--font-mono);'>Showing <b>{len(filtered)}</b> recorded meeting session(s)</div>", unsafe_allow_html=True)
 
         if not filtered:
             render_empty_state("No Meetings Found", "No meeting records match your search criteria. Log a meeting or reset filters.")
